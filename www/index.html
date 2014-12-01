@@ -1,0 +1,223 @@
+
+<html>
+<head>
+<script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+<link rel="stylesheet" href="./css/jquery.mobile-1.4.5.css" />
+<script type="text/javascript" charset="utf-8" src="./js/jquery-2.1.1.js"></script>
+<script type="text/javascript" charset="utf-8" src="./js/jquery.mobile-1.4.5.js"></script>
+
+
+<script src="cordova.js"></script>
+
+<style>
+    
+body
+{
+position:absolute;
+width:100%;
+height: 100%;
+background-color: #ffffff;
+}
+
+#Map
+{
+position:absolute;
+top:0%;
+left:0%;
+width:100%;
+height:100%;
+}
+
+
+#Geo
+{
+position:absolute;
+width:50%;
+height:50%;
+left:50%;
+top: 50%;
+}
+
+#ShareLayer
+{
+position:absolute;
+width:100%;
+background-color:#ffffff;
+opacity:0.7;
+height:10%;
+bottom:0%;
+}
+
+#CiakLayer
+{
+    position:absolute;
+    width:100%;
+    background-color:#115687;
+    opacity:0.7;
+    height:20%;
+    top:0%;
+}
+
+#ShareLayerImage
+{
+position:absolute;
+width:100%;
+height:20%;
+}
+
+#ContactsList
+{
+    position:absolute;
+    top:5%;
+    left:7%;
+    opacity:0.7;
+
+}
+
+#hereI
+{
+    position:absolute;
+}
+
+#hereLayer
+{
+    position:absolute;
+    width:100%;
+    height:100%;
+}
+
+</style>
+    </head>
+
+<body>
+    <div id="Map"></div>
+    <div id="hereLayer"><img id="hereI" src="./img/here.png"/> </div>
+
+    <div id="Geo"></div>
+    <div id="ShareLayer">
+       <!-- <img id="ShareLayerImage" src="img/send.png"><img/>!-->
+    </div>
+    <div id="CiakLayer"></div>
+    <div id="ContactsList"></div>
+    
+    <script>
+        $(document).ready(function(){
+   //     document.addEventListener("deviceready",onDeviceReady,false);
+        document.addEventListener("touchmove", function(e){e.preventDefault();});
+        $( "#ShareLayer" ).on( "tap", tapHandler );
+        
+                        $("#CiakLayer").on("tap", ciakHandler);
+        deviceReady = true;
+        navigator.geolocation.watchPosition(onSuccess, onError, { timeout: 5000 });
+        
+        var lat = 0;
+        var lon = 0;
+        var zoom=16;
+        var lonLat;
+        var deviceReady = false;
+        var listCreated = false;
+    
+    function tapHandler( event )
+    {
+        var options = new ContactFindOptions();
+        options.filter = "";          // empty search string returns all contacts
+        options.multiple = true;      // return multiple results
+        var fields = ["displayName", "name"];
+        navigator.contacts.find(fields, onSuccessC, onErrorC, options);
+    }
+
+                          
+    function ciakHandler(event)
+    {
+      var options = {quality : 75,
+      destinationType : 0,
+      sourceType : 1,
+      allowEdit : true,
+      encodingType: 1,
+      targetWidth: 100,
+      targetHeight: 100,
+      saveToPhotoAlbum: false };
+
+     navigator.camera.getPicture(onSuccessCam, onFailCam, options);
+    }
+                          
+    function onSuccessCam(imageData)
+    {
+        var image = document.getElementById('myImage');
+        image.src = "data:image/fjpeg;base64," + imageData;
+    }
+
+    function onFailCam(message)
+    {
+          alert('Failed because: ' + message);
+    }
+                          
+    function onSuccess(position)
+    {
+      if ((position.coords.longitude != lon) || (position.coords.latitude != lat))
+      {
+                           lon = position.coords.longitude ;
+                lat = position.coords.latitude ;
+          var element = document.getElementById('Geo');
+          element.innerHTML  = 'Latitude: '  +   lat      +  '<br />' +
+          'Longitude: '          + lon     + '<br />';
+          lonLat= new OpenLayers.LonLat( lon ,lat ).transform( new OpenLayers.Projection("EPSG:4326"),                                                                              map.getProjectionObject());
+          map.setCenter (lonLat, zoom);
+      }
+    }
+    
+    function onError(error)
+    {
+        console.log('onError geo!');
+    }
+    
+  function onSuccessC(contacts)
+  {
+  alert("ok");
+  if(!listCreated)
+  {
+  
+  $("#ContactsList").append("<ul id='list' data-role='listview' data-filter='true' data-theme='c'></ul>");
+  $("#ContactsList").trigger("create");
+  
+  
+  for (var i = 0; i < contacts.length; i++)
+  $("#list ").append("<li data-theme='b'>" + contacts[i].displayName + "</li>");
+  
+  listCreated = true;
+  $("#list").listview("refresh");
+  
+  }
+  }
+  
+  function onErrorC(contactError)
+  {
+  alert("onError conc!");
+  }
+
+map = new OpenLayers.Map ("Map",{controls:[new OpenLayers.Control.Navigation()]});
+map.addLayer(new OpenLayers.Layer.OSM());
+                          
+// find the element
+var img = $("#hereI");
+
+/*
+* create an offscreen image that isn't scaled
+* but contains the same image.
+* Because it's cached it should be instantly here.
+*/
+
+var theImage = new Image();
+theImage.src = img.attr("src");
+
+// you should check here if the image has finished loading
+// this can be done with theImage.complete
+
+alert("Width: " + theImage.width);
+alert("Height: " + theImage.height);
+
+});
+
+</script>
+</body>
+</html>
