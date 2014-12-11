@@ -99,14 +99,12 @@ top:48%;
 </div>
 <div id="CiakLayer"></div>
 <div id="ContactsList"></div>
-<div id="hereLayer" visible ="false"><img id="hereI" src="./img/here.png"/> </div>
+<div id="hereLayer"><img id="hereI" src="./img/here.png"/> </div>
 <script>
 
 var hereIw = $(document).width() * 3 / 100;
 var hereIh = $(document).height() * 6 / 100;
-
-alert(hereIh);
-alert(hereIw);
+var id = -1;
 
 hereLayer.style.width = hereIw;
 hereLayer.style.height = hereIh;
@@ -114,6 +112,9 @@ $("#hereLayer").width = hereIw;
 $("#hereLayer").height = hereIh;
 
 $(document).ready(function(){
+
+// create id
+id = getId();
 //     document.addEventListener("deviceready",onDeviceReady,false);
 document.addEventListener("touchmove", function(e){e.preventDefault();});
 $(window).resize(function()
@@ -142,15 +143,14 @@ $("#CiakLayer").on("tap", ciakHandler);
 deviceReady = true;
 navigator.geolocation.watchPosition(onSuccess, onError, { timeout: 5000 });
 
-$("#hereLayer").hide();
 var lat = 0;
 var lon = 0;
-                  var offsetX = 0;
-                  var offsetY = 0;
+var offsetX = 0;
+var offsetY = 0;
 var zoom=16;
 var lonLat;
 var deviceReady = false;
-                  var mouseDo = false;
+var mouseDo = false;
 var listCreated = false;
 
 function tapHandlerMap( event )
@@ -236,14 +236,13 @@ alert("onError conc!");
 
 function onLoadEnd(event)
 {
-$("#hereLayer").fadeIn("slow",function() {});
 }
 
 function onMoveEnd(event)
 {
 
 }
-                  
+
 mapLayer = new OpenLayers.Map ("Map",{controls:[new OpenLayers.Control.Navigation()]});
 var lay = new OpenLayers.Layer.OSM();
 mapLayer.addLayer(lay);
@@ -253,9 +252,6 @@ mapLayer.events.register("moveend", this, onMoveEnd);
 mapLayer.events.register("mousedown",this,mousedown,true);
 mapLayer.events.register("mouseup",this,mouseup,true);
 mapLayer.events.register("mousemove",this,mouseMove,true);
-
-
-
 
 });
 
